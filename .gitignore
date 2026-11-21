@@ -7,5 +7,4 @@ dist/
 
 # Local / student
 .env
-frontend/
 course_build/
