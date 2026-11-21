@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+.venv/
+
+# Local / student
+.env
+frontend/
+course_build/
