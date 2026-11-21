@@ -29,4 +29,4 @@ app = create_app()
 def run() -> None:
     import uvicorn
 
-    uvicorn.run("chatup.api.main:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("chatup.api.main:app", host="0.0.0.0", port=3000, reload=False)
