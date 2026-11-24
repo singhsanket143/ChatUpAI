@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
     postgres_db: str = "chatup"
 
+    postgres_pool_min_size: int = 1
+    postgres_pool_max_size: int = 8
+    postgres_pool_open: bool = True
+
     openai_api_key: str = ""
     chat_model: str = "gpt-4o-mini"
     memory_model: str = "gpt-4o-mini"
@@ -23,6 +27,12 @@ class Settings(BaseSettings):
         return (
             f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
         )
+
+    @property
+    def postgres_row_factory(self):
+        from psycopg.rows import dict_row
+
+        return dict_row
 
 
 @lru_cache
