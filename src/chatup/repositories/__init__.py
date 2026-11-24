@@ -2,6 +2,7 @@ from chatup.repositories.pool import create_pool
 from chatup.repositories.threads import (
     ensure_thread,
     list_threads,
+    thread_belongs_to_user,
     touch_thread,
     update_thread_title,
 )
@@ -12,6 +13,7 @@ __all__ = [
     "ensure_thread",
     "ensure_user",
     "list_threads",
+    "thread_belongs_to_user",
     "touch_thread",
     "update_thread_title",
 ]

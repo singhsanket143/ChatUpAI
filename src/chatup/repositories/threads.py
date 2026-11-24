@@ -16,6 +16,24 @@ def list_threads(pool: ConnectionPool, user_id: str) -> list[dict]:
         ).fetchall()
     return list(rows)
 
+
+def thread_belongs_to_user(
+    pool: ConnectionPool,
+    user_id: str,
+    thread_id: str,
+) -> bool:
+    with pool.connection() as conn:
+        row = conn.execute(
+            """
+            SELECT 1
+            FROM chatup_threads
+            WHERE thread_id = %s AND user_id = %s
+            """,
+            (thread_id, user_id),
+        ).fetchone()
+    return row is not None
+
+
 # create thread if it doesn't exist
 def ensure_thread(
     pool: ConnectionPool,
