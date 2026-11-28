@@ -8,6 +8,7 @@ from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.store.postgres import PostgresStore
 
+
 from chatup.agents.build import build_agent
 from chatup.agents.memory_runtime import build_store
 from chatup.agents.utils import checkpoint_messages_to_chat, extract_assistant_reply
@@ -61,7 +62,7 @@ def create_app_runtime(settings: Settings) -> AppRuntime:
     checkpointer_cm = PostgresSaver.from_conn_string(settings.database_url)
     checkpointer = checkpointer_cm.__enter__()
     checkpointer.setup()
-    agent = build_agent(settings, store,checkpointer)
+    agent = build_agent(settings, store, checkpointer)
     return AppRuntime(
         settings=settings,
         checkpointer=checkpointer,
