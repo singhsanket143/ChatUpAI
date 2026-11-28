@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
+from contextlib import AbstractContextManager
+from dataclasses import dataclass, field
 from langchain_core.messages import BaseMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.postgres import PostgresSaver
@@ -17,6 +17,10 @@ class AppRuntime:
     settings: Settings
     checkpointer: PostgresSaver
     agent: CompiledStateGraph
+    _checkpointer_cm: AbstractContextManager[PostgresSaver] | None = field(
+        default=None,
+        repr=False,
+    )
 
     def chat(self, user_id: str, thread_id: str, user_message: str) -> tuple[str, list[BaseMessage]]:
         config = self._chat_config(user_id, thread_id)
@@ -37,6 +41,11 @@ class AppRuntime:
             },
         }
 
+    def close(self) -> None:
+        if self._checkpointer_cm is not None:
+            self._checkpointer_cm.__exit__(None, None, None)
+            self._checkpointer_cm = None
+
 
 def create_app_runtime(settings: Settings) -> AppRuntime:
     checkpointer_cm = PostgresSaver.from_conn_string(settings.database_url)
@@ -47,4 +56,5 @@ def create_app_runtime(settings: Settings) -> AppRuntime:
         settings=settings,
         checkpointer=checkpointer,
         agent=agent,
+        _checkpointer_cm=checkpointer_cm,
     )

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from chatup.api.deps import PoolDep, UserIdDep
+from chatup.api.deps import AppRuntimeDep, PoolDep, UserIdDep
 from chatup.repositories import touch_thread
 from chatup.schemas.api import ChatRequest, ChatResponse, MessageResponse
 from chatup.services.chat import chat_once
@@ -23,10 +23,11 @@ def chat_in_thread(
     thread_id: str,
     body: ChatRequest,
     pool: PoolDep,
+    runtime: AppRuntimeDep,
     user_id: UserIdDep,
 ) -> ChatResponse:
     try:
-        reply, tid = chat_once(pool, user_id, thread_id, body.message)
+        reply, tid = chat_once(pool, runtime, user_id, thread_id, body.message)
     except HTTPException:
         raise
     except Exception as exc:
