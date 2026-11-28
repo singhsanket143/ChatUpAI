@@ -6,8 +6,10 @@ from langchain_core.messages import BaseMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph.state import CompiledStateGraph
+from langgraph.store.postgres import PostgresStore
 
 from chatup.agents.build import build_agent
+from chatup.agents.memory_runtime import build_store
 from chatup.agents.utils import checkpoint_messages_to_chat, extract_assistant_reply
 from chatup.config import Settings
 
@@ -21,6 +23,7 @@ class AppRuntime:
         default=None,
         repr=False,
     )
+    store: PostgresStore
 
     def chat(self, user_id: str, thread_id: str, user_message: str) -> tuple[str, list[BaseMessage]]:
         config = self._chat_config(user_id, thread_id)
@@ -54,13 +57,15 @@ class AppRuntime:
 
 
 def create_app_runtime(settings: Settings) -> AppRuntime:
+    store = build_store(settings)
     checkpointer_cm = PostgresSaver.from_conn_string(settings.database_url)
     checkpointer = checkpointer_cm.__enter__()
     checkpointer.setup()
-    agent = build_agent(settings, checkpointer)
+    agent = build_agent(settings, store,checkpointer)
     return AppRuntime(
         settings=settings,
         checkpointer=checkpointer,
         agent=agent,
         _checkpointer_cm=checkpointer_cm,
+        store=store
     )
