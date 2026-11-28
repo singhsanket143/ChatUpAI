@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
 
 def _content(message: BaseMessage) -> str:
@@ -27,3 +27,23 @@ def extract_assistant_reply(messages: list[BaseMessage]) -> str:
         if text:
             return text
     return ""
+
+def checkpoint_messages_to_chat(messages: list[BaseMessage]) -> list[dict[str, str]]:
+    output: list[dict[str, str]] = []
+
+    for message in messages:
+        if isinstance(message, HumanMessage):
+            text = _content(message) 
+            if text.strip():
+                output.append({
+                    "role": "user",
+                    "content": text,
+                })
+        elif isinstance(message, AIMessage):
+            text = _content(message)
+            if text.strip():
+                output.append({
+                    "role": "assistant",
+                    "content": text,
+                })
+    return output

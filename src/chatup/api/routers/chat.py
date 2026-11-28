@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from chatup.api.deps import AppRuntimeDep, PoolDep, UserIdDep
 from chatup.repositories import touch_thread
 from chatup.schemas.api import ChatRequest, ChatResponse, MessageResponse
-from chatup.services.chat import chat_once
+from chatup.services.chat import chat_once, get_thread_messages
 
 router = APIRouter(prefix="/api/threads", tags=["chat"])
 
@@ -13,9 +13,12 @@ router = APIRouter(prefix="/api/threads", tags=["chat"])
 @router.get("/{thread_id}/messages", response_model=MessageResponse)
 def list_thread_messages(
     thread_id: str,
-    _user_id: UserIdDep,
+    pool: PoolDep,
+    runtime: AppRuntimeDep,
+    user_id: UserIdDep,
 ) -> MessageResponse:
-    return MessageResponse(thread_id=thread_id, messages=[])
+    messages = get_thread_messages(pool, runtime, user_id, thread_id)
+    return MessageResponse(thread_id=thread_id, messages=messages)
 
 
 @router.post("/{thread_id}/chat", response_model=ChatResponse)

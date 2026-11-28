@@ -8,7 +8,7 @@ from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph.state import CompiledStateGraph
 
 from chatup.agents.build import build_agent
-from chatup.agents.utils import extract_assistant_reply
+from chatup.agents.utils import checkpoint_messages_to_chat, extract_assistant_reply
 from chatup.config import Settings
 
 
@@ -31,6 +31,12 @@ class AppRuntime:
         snapshot = self.agent.get_state(config)
         messages = (snapshot.values or {}).get("messages") or []
         return extract_assistant_reply(messages), messages
+
+    def get_chat_history(self, user_id: str, thread_id: str) -> list[dict[str, str]]:
+        config = self._chat_config(user_id, thread_id)
+        snapshot = self.agent.get_state(config)
+        messages = (snapshot.values or {}).get("messages") or []
+        return checkpoint_messages_to_chat(messages)
 
     def _chat_config(self, user_id: str, thread_id: str) -> RunnableConfig:
         return {
